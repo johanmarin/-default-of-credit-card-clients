@@ -1,0 +1,7 @@
+ipykernel==6.15.0
+ipympl==0.9.3
+pandas
+pandas-profiling[notebook]
+PyYAML==6.0
+scikit-learn
+xlrd>=2.0.1 
