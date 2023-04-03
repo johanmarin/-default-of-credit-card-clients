@@ -81,7 +81,9 @@ regex:
 ```
 
 ## Analysis
-To test the code and perform the analysis, the default of credit card clients Data Set is used, stored in this [repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). The analysis is carried out using the framework detailed above in the following files.
+To test the code and perform the analysis, the default of credit card clients Data Set is used, stored in this [repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). The analysis is carried out using the framework detailed above in the following files. 
+
+<a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/johanmarin/default-of-credit-card-clients/blob/main/analisis.ipynb" target="_blank">Download analisis</a>
 
 ```bash
 .
