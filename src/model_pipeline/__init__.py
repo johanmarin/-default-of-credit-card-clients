@@ -1,19 +1,20 @@
 
-from src.model_pipeline.feature_selection import get_importances, get_feature_selection, fit_pca
+import src.model_pipeline.feature_selection as fs 
 from src.model_pipeline.model_selection import evaluate_model
 import src.utils as ut
 from sklearn.model_selection import train_test_split
 from imblearn.under_sampling import RandomUnderSampler
 import pandas as pd
 import klib
-import os
 
-import src.model_pipeline.time_ahor as vrt
-
+# models
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
+# This function be used to load preprocess data for function get_feature slection and save time
+# if you like you can  remo this function you can delethe row 114 and uncomment row 115
+import src.model_pipeline.time_ahor as vrt
 
 class DefaultModeler:
     """
@@ -74,19 +75,14 @@ class DefaultModeler:
         # Predict the target variable using the selected model
         >>> y_pred = modeler.model.predict(modeler.X)
     """
-
-
     
-    def __init__(self, file_path: str, random_state = 123) -> None:  
+    def __init__(self, file_path: str="data_model.csv", random_state: int = 123) -> None:  
         """
         Instantiate the DefaultModeler class
         
         Args:
-        -----
-        file_path: str
-            Path to the csv file
-        random_state: int
-            Seed value for random initialization
+            file_path (str): Path to the csv file. defaults is 'data_model.csv'
+            random_state (int): Seed value for random initialization, Default is 123
         """
         self.df = klib.data_cleaning(pd.read_csv(file_path))        
         self.random_state= random_state
@@ -111,25 +107,31 @@ class DefaultModeler:
         """
         Run feature selection and PCA algorithms and stores the results
         """
-        self.df_importances = get_importances(self.X, self.y, random_state=self.random_state)
+        self.df_importances = fs.get_importances(self.X, self.y, random_state=self.random_state)
         
         self.selected_features, self.feature_analisis = vrt.ft ,vrt.an
-        # self.selected_features, self.feature_analisis = get_feature_selection(self.X, self.y)
-        self.pca= fit_pca(self.X)
+        # self.selected_features, self.feature_analisis = fs.get_feature_selection(self.X, self.y)
+        self.pca= fs.fit_pca(self.X)
         self.feature_filter = self.selected_features.variable[self.selected_features.include].to_list()
         
-        selectors = {"filter": self.feature_filter,
+        selectors = {"df_importances": self.df_importances,
+                     "selected_features": self.selected_features,
+                     "feature_analisis": self.feature_analisis,
+                     "filter": self.feature_filter,
                      "pca": self.pca}
         
         ut.registry_object(selectors, 'registry/model_pipeline/feature_selectors.joblib')
         
-    def use_selectors(self):   
+    def get_selectors(self):   
         """
         Retrieve the stored feature selection and PCA results for predicting using the model
         """             
         selectors = ut.get_registred_object('registry/model_pipeline/feature_selectors.joblib')
         self.feature_filter = selectors["filter"]
-        self.pca = selectors["pca"]       
+        self.pca = selectors["pca"] 
+        self.selected_features = selectors["selected_features"]
+        self.feature_analisis = selectors["feature_analisis"]   
+        self.df_importances = selectors["df_importances"] 
     
     def split_train_test(self):
         """Split the data into training and testing sets and performs random under-sampling.
@@ -253,3 +255,21 @@ class DefaultModeler:
         """
         self.model = ut.get_registred_object('registry/model_pipeline/model.joblib')
         return self.model.to_dict()
+    
+    def plot_importance_features(self):
+        """
+        Plot importance for variables
+        """        
+        fs.plot_importances(self.df_importances)
+        
+    def plot_fitted_vs_features(self):
+        """
+        Plot fitted model vs # variables
+        """        
+        fs.plot_number_features(self.feature_analisis)
+        
+    def plot_pca(self):
+        """
+        Plot the pca vs # components 
+        """        
+        fs.plot_pca_variance(self.X)

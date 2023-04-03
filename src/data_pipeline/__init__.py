@@ -33,7 +33,7 @@ class DefaulerData:
         save_data(): Saves the cleaned dataframe as a csv file
 
     """
-    def __init__(self, str_url: str, str_metadata_path: str, int_sample: int=None, str_type: str="train") -> None:
+    def __init__(self, str_metadata_path: str, int_sample: int=None) -> None:
         """
         Initializes the DefaulerData object and loads the data and metadata.
 
@@ -46,14 +46,16 @@ class DefaulerData:
         Raises:
             ValueError: Raised when input data is not provided
         """
-        self.type = str_type
         # load metadata
         file = open(str_metadata_path, "r")
         metadata = yaml.safe_load(file)
         file.close()
         
         # load data
-        df = pd.read_excel(str_url, header=1, index_col="ID", dtype=metadata["dtypes"]).rename(columns={'PAY_0': 'PAY_1'})
+        df = pd.read_excel(metadata["path"], header=1, index_col="ID", dtype=metadata["dtypes"])
+        if "rename" in metadata:
+            if metadata["rename"]:
+                df.rename(columns=metadata["rename"], inplace=True)
         if int_sample:
             df = df.sample(n=int_sample, random_state=1)
         
@@ -77,10 +79,15 @@ class DefaulerData:
         """
         Adds engineered features to the dataframe
         """
-        self.df["slope"] = calculate_slope_df(self.df, [col for col in self.df.columns if re.search(r"pay_[2-6]+", col)])
-        
-        for col in [col for col in self.df.columns if re.search(r".*amt", col)]:
-            self.df[f"percent_{col}"] = self.df[col]/self.df.limit_bal
+        if "regex" in self.metadata:
+            if "slope" in self.metadata["regex"]:
+                self.df["slope"] = calculate_slope_df(self.df, [col for col in self.df.columns if re.search(eval(self.metadata["regex"]["slope"]), col)])
+                print("slope be calculated")
+                
+            if ("relative" in self.metadata["regex"]) and ("total" in self.metadata["regex"]):        
+                for col in [col for col in self.df.columns if re.search(eval(self.metadata["regex"]["relatives"]), col)]:
+                    self.df[f"percent_{col}"] = self.df[col]/self.df[self.metadata["regex"]["total"]]
+            print("relative variables be calculated")
     
     def train_scaler(self):   
         """

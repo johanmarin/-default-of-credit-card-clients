@@ -1,48 +1,94 @@
-# Proceso
-En este repositorio se realiza la implementación de un modelo para la predicción de impago. Teniendo en cuenta múltiples características transaccionales de cada cliente, se busca determinar si este pagará o no el próximo mes.
+# Model for default prediction
 
-El marco de trabajo se detalla a continuación:
+## Process
+This repository implements a model for default prediction. Taking into account multiple transactional characteristics of each customer, it seeks to determine whether they will pay the next month or not.
 
-1. Entendimiento del problema
-2. Análisis de la calidad de los datos
-3. Corrección de la calidad de los datos
-4. Análisis exploratorio
-5. Ingeniería de características
-6. Selección de variables
-7. Experimentos para la selección del mejor modelo (selección de métricas, búsqueda de hiperparámetros)
-8. Selección del modelo
-9. Refactorización del código (modularización del código, construcción de clases, docstring y anotaciones)
-10. Construcción de pipelines de datos y entrenamiento de modelo
+The framework is detailed below:
+
+1. Understanding the problem
+2. Data quality analysis
+3. Data quality correction
+4. Exploratory analysis
+5. Feature engineering
+6. Variable selection
+7. Experiments for selecting the best model (metric selection, hyperparameter tuning)
+8. Model selection
+9. Code refactoring (code modularization, class construction, docstring and annotations)
+10. Building data pipelines and model training
 11. Model registry.
 
-## Notas
-Se construyen librerías personalizadas que permiten un rápido reentrenamiento y puesta en producción del mejor modelo. Esta implementación no se encuentra restringida solamente al conjunto de datos en cuestión (default-of-credit-card-clients). Si no que, cambiando los parámetros de configuración en el archivo metadata.yaml y la ruta donde se almacenan los datos, se pueden usar para la construcción de modelos que apunten a diferentes objetivos.    
+## Notes
+Custom libraries are built that allow for rapid retraining and deployment of the best model. The code implementation was made to be independent of the data set and variable names. The pipeline receives the required data for its configuration from a YAML file. Therefore, with small changes in the configuration, it can be used to build models aimed at different objectives.
+  
 
-# Organización del repositorio
+## Development
 
-```
-├── analisis.ipynb               <- Consolida todo el marco de trabajo detallado anteriormente. Usa los módulos y las funciones que se describen a continuación. Además, contiene comentarios y detalla el proceso.
+```bash
+.
+├── registry                           <- Folder with model binaries, scalers, PCA, etc.
+│   ├── data_pipeline                  <- Data pipeline binaries.
+│   └── model_pipeline                 <- Model pipeline binary.
 │
-├── metadata.yaml                <- Valores de configuración de la base de datos usada para el modelamiento.
+├── src                                <- Modules for data cleaning, data exploration, and model fitting.
+│   ├── data_pipeline                  <- Data pipeline modules.
+│   │   ├── __init__.py                <- Contains the main Class of the data pipeline that allows it to be executed.
+│   │   ├── data_cleansing.py          <- Functions used in data cleaning.
+│   │   └── feature_engineering.py     <- Functions used in feature engineering.
+│   ├── model_pipeline                 <- Model pipeline modules.
+│   │   ├── __init__.py                <- Contains the main Class of the model pipeline that allows it to be executed.
+│   │   ├── feature_selection.py       <- Functions used in feature selection.
+│   │   └── model_selection.py         <- Functions for training and evaluating models.
+│   ├── exploratory.py                 <- Functions for data visualization.
+│   ├── utils                          <- Functions for saving and reading variables in the registry.
+│   └── __init__.py                    <- File that is read first when importing the datasets folder.
 │
-├── registry                     <- Carpeta con binarios de modelos, escalares, pca, etc.
-│   ├── data_pipeline            <- Binarios del pipeline de datos.
-│   └── model_pipeline           <- Binario del pipeline del modelo.
-│
-├── src                          <- Módulos para limpieza de datos, exploración de datos y ajuste de modelos.
-│   ├── data_pipeline            <- Módulos del pipeline de datos.
-│   │   ├── __init__.py          <- Contiene la clase principal del pipeline de datos que permite ejecutarlo.
-│   │   ├── data_cleansing.py    <- Funciones usadas en la limpieza de datos.
-│   │   └── feature_engineering.py <- Funciones usadas en la ingeniería de características.
-│   ├── model_pipeline           <- Módulos del pipeline del modelo.
-│   │   ├── __init__.py          <- Contiene la clase principal del pipeline del modelo que permite ejecutarlo.
-│   │   ├── feature_selection.py <- Funciones usadas en la selección de características.
-│   │   └── model_selection.py   <- Módulo para entrenar y evaluar modelos.
-│   ├── exploratory.py           <- Funciones para la visualización de datos.
-│   ├── utils                    <- Funciones para el guardado y la lectura de variables en el registry.
-│   └── __init__.py              <- Archivo que se lee primero al importar el folder datasets.
-│
-└── requirements.txt             <- Archivo con las versiones de los paquetes necesarios. 
-
+└── requirements.txt                   <- File with the versions of the necessary packages.
                            
+```   
+
+## Configuration file
+
+The configuration file should have information about the dataset and some variables on how it will be processed.
+
+```yaml
+path: https://url/to data # This is the URL path to the dataset
+categories: # Categorical variables with non-interpretable values are used for graphics
+  name_var1:
+    'value1': Interpretation of value1  
+    'value2': Interpretation of value2
+  name_var2:
+    'value1': Interpretation of value1
+    'value2': Interpretation of value2
+    'value3': Interpretation of value3
+dtypes:  # Dtypes for all values are used to guarantee the correct processing of variables
+  name_var1: category
+  name_var2: category
+  name_var3: int64
+  name_var4: int64
+  name_var5: int64
+  name_target: bool
+
+target: name_target  # Name for the target variable
+
+rename:   # If required, rename a variable
+  name_var: new_name_var 
+
+regex:
+  slope: r"pay_[2-6]+"  # Use this regex to select variable names if I need to calculate slope
+  relatives: r".*amt"  # Use this regex to select variable names if any variable is better in relative format
+  total: LIMIT_BAL  # Variable that divides variables and transforms them into relatives
+    
+```
+
+## Prueba 
+
+Test
+To test the code and perform the analysis, the default of credit card clients Data Set is used, stored in this [repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). The analysis is carried out using the framework detailed above in the following files.
+
+```bash
+.
+├── analysis.ipynb     <- Consolidates the entire framework detailed above. It uses the modules and functions described 
+│                         below. Additionally, it contains comments and details the process.
+└── metadata.yaml      <- Configuration values of the database used for modeling.
+
 ```

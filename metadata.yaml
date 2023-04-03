@@ -1,3 +1,4 @@
+path: https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls
 categories:
   EDUCATION:
     '1': graduate school
@@ -38,3 +39,11 @@ dtypes:
   default payment next month: bool
 
 target: default payment next month
+
+rename:
+  PAY_0: PAY_1
+
+regex:
+  slope: r"pay_[2-6]+"
+  relatives: r".*amt"
+  total: LIMIT_BAL
