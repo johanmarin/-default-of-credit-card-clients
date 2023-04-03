@@ -6,11 +6,37 @@ import numpy as np
 import math
 
 def dataframe_unanonimized(df: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+    """
+    Replaces the anonymous values in a dataframe with their original values based on metadata.
+
+    Args:
+        df: A pandas dataframe with anonymous values.
+        metadata: A dictionary containing information about the anonymous values.
+            The dictionary must have a "categories" key that maps column names to a dictionary of 
+            anonymous values and their original values.
+
+    Returns:
+        A pandas dataframe with anonymous values replaced with their original values.
+    """
     return df.apply(lambda col: col.replace(metadata["categories"][col.name]) 
                     if str(col.name) in metadata["categories"] 
                     else col, axis=0)
 
 def generate_profiling_report(df: pd.DataFrame, metadata: dict, file_name: str) -> pandas_profiling.pandas_profiling.ProfileReport:
+    """
+    Generate a profiling report for the input pandas DataFrame.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame to generate a profiling report for.
+    metadata (dict): A dictionary containing metadata for the DataFrame.
+    file_name (str): The name of the output file for the generated report.
+
+    Returns:
+    pandas_profiling.pandas_profiling.ProfileReport: A profile report object for the input DataFrame.
+
+    Config:
+    config (dict): A dictionary containing configuration options for the pandas_profiling.ProfileReport object.
+    """
     config = {
         "minimal": True,
         "title": "Default credit card clients", 
@@ -107,6 +133,7 @@ def visualize_boxplots(df: pd.DataFrame, target: str):
     Returns:
         None
     """
+    plt.style.use("ggplot") 
     # Set color palette
     colors = ["red", "pink"]
     sns.set_palette(sns.color_palette(colors))
@@ -138,7 +165,21 @@ def visualize_boxplots(df: pd.DataFrame, target: str):
 
     
 def visualize_stacked_barplots(df: pd.DataFrame, target: pd.DataFrame):
+    """
+    Visualizes stacked barplots of categorical variables against a target variable.
+
+    Args:
+    df (pd.DataFrame): The dataframe to visualize.
+    target (pd.DataFrame): The target variable in the dataframe.
+
+    Returns:
+    None
+
+    Raises:
+    None
+    """
     # Create a list of all categorical columns in the dataframe except the target variable
+    plt.style.use("ggplot") 
     cat_cols = df.select_dtypes(include=['category', 'bool', 'object']).columns.tolist()
     if target in cat_cols:
         cat_cols.remove(target)
@@ -167,7 +208,18 @@ def visualize_stacked_barplots(df: pd.DataFrame, target: pd.DataFrame):
 
 
 def boxplot_data_with_outliers(data: pd.Series, threshold: int=3):
+    """
+    Visualize a boxplot of the data with and without outliers.
+
+    Args:
+        data (pd.Series): A pandas series of numerical data.
+        threshold (int, optional): The number of standard deviations from the mean to consider a point as an outlier. Defaults to 3.
+
+    Returns:
+        None.
+    """
     # calculate the mean and standard deviation of the data
+    plt.style.use("ggplot") 
     mean = np.mean(data)
     std = np.std(data)
     
@@ -193,6 +245,19 @@ def boxplot_data_with_outliers(data: pd.Series, threshold: int=3):
     plt.show()
     
 def calculate_outlier_percentage_zscore(data: pd.Series, threshold: int=3) -> float:
+    """
+    Calculates the percentage of outliers in the given data using the z-score method.
+
+    Args:
+        data: A pandas Series of numerical data.
+        threshold: The z-score threshold for identifying outliers. Defaults to 3.
+
+    Returns:
+        The percentage of outliers in the data as a float.
+
+    Raises:
+        None.
+    """
     # calculate the mean and standard deviation of the data
     mean = np.mean(data)
     std = np.std(data)
@@ -210,6 +275,15 @@ def calculate_outlier_percentage_zscore(data: pd.Series, threshold: int=3) -> fl
     return outlier_percentage
 
 def analize_outliers_zscore(df: pd.DataFrame):
+    """
+    Analyzes outliers in a given pandas DataFrame using the z-score method and plots a boxplot with outliers.
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame to analyze outliers.
+
+    Returns:
+        None
+    """
     for col in df.select_dtypes(include=['integer', 'floating']).columns.tolist():
         print(f"{col} have a {calculate_outlier_percentage_zscore(df[col])} % outliers")
         boxplot_data_with_outliers(df[col])

@@ -1,3 +1,4 @@
+imblearn
 ipykernel==6.15.0
 ipympl==0.9.3
 pandas
