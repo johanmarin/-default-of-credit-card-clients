@@ -98,13 +98,13 @@ class DefaultModeler:
         self.X = self.df.iloc[:,1:]
         self.y = self.df.iloc[:,0]
         
-        ut.registry_object(list[self.X.columns], 'required_columns.joblib')
+        ut.registry_object(list[self.X.columns], 'registry/model_pipeline/required_columns.joblib')
         
     def set_vars_use(self):
         """
         Set X variable for the model prediction process
         """
-        columns = ut.get_registred_object('required_columns.joblib')
+        columns = ut.get_registred_object('registry/model_pipeline/required_columns.joblib')
         self.X = self.df[columns]        
         
     def fit_selectors(self):        
@@ -121,13 +121,13 @@ class DefaultModeler:
         selectors = {"filter": self.feature_filter,
                      "pca": self.pca}
         
-        ut.registry_object(selectors, 'feature_selectors.joblib')
+        ut.registry_object(selectors, 'registry/model_pipeline/feature_selectors.joblib')
         
     def use_selectors(self):   
         """
         Retrieve the stored feature selection and PCA results for predicting using the model
         """             
-        selectors = ut.get_registred_object('feature_selectors.joblib')
+        selectors = ut.get_registred_object('registry/model_pipeline/feature_selectors.joblib')
         self.feature_filter = selectors["filter"]
         self.pca = selectors["pca"]       
     
@@ -213,13 +213,13 @@ class DefaultModeler:
             
         self.model = self.metadata_models[self.metadata_models.f1_test == self.metadata_models.f1_test.max()].T[0]
             
-        ut.registry_object(self.metadata_models, 'models_log.joblib')
-        ut.registry_object(self.model, 'model.joblib')        
+        ut.registry_object(self.metadata_models, 'registry/model_pipeline/models_log.joblib')
+        ut.registry_object(self.model, 'registry/model_pipeline/model.joblib')        
         
     def use_model(self):   
         """Uses the trained model to predict on new data.
         """     
-        self.model = ut.get_registred_object('model.joblib')
+        self.model = ut.get_registred_object('registry/model_pipeline/model.joblib')
         
         if self.model.data == "default":
             X = self.X
@@ -239,7 +239,7 @@ class DefaultModeler:
         Returns:
             metadata_models (pd.DataFrame): DataFrame containing the log of model training.
         """
-        self.metadata_models = ut.get_registred_object('models_log.joblib')
+        self.metadata_models = ut.get_registred_object('registry/model_pipeline/models_log.joblib')
         return self.metadata_models
     
     def get_info_model(self) -> dict:
@@ -251,5 +251,5 @@ class DefaultModeler:
         Returns:
             model_dict (dict): Dictionary containing the information of the trained model.
         """
-        self.model = ut.get_registred_object('model.joblib')
+        self.model = ut.get_registred_object('registry/model_pipeline/model.joblib')
         return self.model.to_dict()

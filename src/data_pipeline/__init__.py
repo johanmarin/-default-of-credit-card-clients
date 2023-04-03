@@ -91,19 +91,14 @@ class DefaulerData:
             scalers[col_name], self.df[f"{col_name}_scaled"] = fit_scaler(data=self.df[col_name])
             self.df.drop(columns=col_name, inplace=True)
         
-        ut.registry_object(scalers, 'scalers.joblib')
+        ut.registry_object(scalers, 'registry/data_pipeline/scalers.joblib')
         self.df = klib.data_cleaning(self.df)
             
     def use_scaler(self):
         """
         Uses the scaler objects to transform numerical columns
-        """
-        
-        if os.path.exists('scalers.joblib'):
-            scalers = ut.get_registred_object('scalers.joblib')
-        else:
-            raise ValueError(" file scalers.joblib not exists, you need train the model before using this")
-        
+        """        
+        scalers = ut.get_registred_object('registry/data_pipeline/scalers.joblib')        
         for col_name in self.df.select_dtypes(include=['integer', 'floating']).columns.tolist():
             self.df[f"{col_name}_scaled"] = scale_data(self.df[col_name], scalers[col_name])
             self.df.drop(columns=col_name, inplace=True)
@@ -113,7 +108,7 @@ class DefaulerData:
         """
         Encodes categorical columns as one-hot encoded columns
         """
-        if os.path.exists('columns_data.joblib'):            
+        if os.path.exists('registry/data_pipeline/columns_data.joblib'):            
             self.df = pd.get_dummies(self.df)
         else:
             self.df = pd.get_dummies(self.df, drop_first = True)
@@ -125,16 +120,13 @@ class DefaulerData:
         Saves column names to be used later
         """
         self.df.columns = [self.metadata["target"]] + [col for col in self.df.columns if col != self.metadata["target"]]
-        ut.registry_object(self.df.columns, "columns_data.joblib")
+        ut.registry_object(self.df.columns, "registry/data_pipeline/columns_data.joblib")
         
     def get_columns(self):
         """
         Retrieves column names
         """
-        if os.path.exists('columns_data.joblib'):
-            self.df = self.df[ut.get_registred_object("columns_data.joblib")]
-        else:
-            raise ValueError(" file columns_data.joblib not exists, you need train the model before using this")
+        self.df = self.df[ut.get_registred_object("registry/data_pipeline/columns_data.joblib")]
         
     def save_data(self):
         """
