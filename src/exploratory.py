@@ -22,15 +22,14 @@ def dataframe_unanonimized(df: pd.DataFrame, metadata: dict) -> pd.DataFrame:
                     if str(col.name) in metadata["categories"] 
                     else col, axis=0)
 
-def generate_profiling_report(df: pd.DataFrame, metadata: dict, file_name: str) -> pandas_profiling.pandas_profiling.ProfileReport:
+def generate_profiling_report(df: pd.DataFrame, metadata: dict) -> pandas_profiling.pandas_profiling.ProfileReport:
     """
     Generate a profiling report for the input pandas DataFrame.
 
     Args:
     df (pandas.DataFrame): The DataFrame to generate a profiling report for.
     metadata (dict): A dictionary containing metadata for the DataFrame.
-    file_name (str): The name of the output file for the generated report.
-
+    
     Returns:
     pandas_profiling.pandas_profiling.ProfileReport: A profile report object for the input DataFrame.
 
@@ -120,7 +119,7 @@ def generate_profiling_report(df: pd.DataFrame, metadata: dict, file_name: str) 
         "notebook": {"iframe": {"height": "800px", "width": "100%", "attribute": "srcdoc"}}}
 
     report = df.profile_report(**config)
-    report.to_file(file_name)
+    return report
 
 def visualize_boxplots(df: pd.DataFrame, target: str):
     """
