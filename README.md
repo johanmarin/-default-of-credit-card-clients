@@ -80,9 +80,7 @@ regex:
     
 ```
 
-## Prueba 
-
-Test
+## Analysis
 To test the code and perform the analysis, the default of credit card clients Data Set is used, stored in this [repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). The analysis is carried out using the framework detailed above in the following files.
 
 ```bash
@@ -91,4 +89,4 @@ To test the code and perform the analysis, the default of credit card clients Da
 │                         below. Additionally, it contains comments and details the process.
 └── metadata.yaml      <- Configuration values of the database used for modeling.
 
-```
+``` 
